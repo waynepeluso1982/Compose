@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -13,7 +14,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -41,8 +40,6 @@ import androidx.compose.ui.unit.dp
 import com.example.compose.ui.theme.ComposeTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -61,20 +58,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import java.time.LocalDate
-import java.time.Year
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.material3.Divider
+//import androidx.compose.material3.DrawerValue
+//import androidx.compose.material3.rememberDrawerState
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 
 
@@ -82,53 +87,19 @@ import androidx.navigation.compose.rememberNavController
 var userName = "Wayne"// placing a variable enables me to edit this in one place
 var body = "You're learning some Kotlin!"
 
-/*I am placing the variables here for now. They may not be best placed within the global space.
-* Should the app calculate these things every startup or, should we place them in a database
-*/
-
 class MainActivity :
     ComponentActivity(/*Arguments (args) go in here!*/) { //curley braces are "the code"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val intent = intent
+        // Get the Bundle object that contains the arguments
+        val bundle = intent.extras
+        // Get the argument value by using the key
+        val startDestination = bundle?.getString("startDestination")
         setContent {
             ComposeTheme {
-                mainDisplay()
-
-//                Box(modifier = Modifier
-//                    .fillMaxSize()
-//                    .background(Color.LightGray) //ads color to the BG
-//                    .padding(horizontal = 4.dp, vertical = 2.dp),//ads padding to the sides
-//                    contentAlignment = Alignment.Center) {
-//
-//                    Column(
-//                        modifier = Modifier.fillMaxSize(),
-//                        verticalArrangement = Arrangement.Top,
-//                        horizontalAlignment = Alignment.CenterHorizontally
-//                    ) {
-//                        Spacer(modifier = Modifier.height(2.dp))
-//
-//                        Surface(
-//                            modifier = Modifier
-//                                .wrapContentSize(Alignment.TopCenter)
-//                                .width(IntrinsicSize.Max)
-//                                .fillMaxWidth(0.8f), // 80% of screen
-//                            shape = MaterialTheme.shapes.small,
-//                            shadowElevation = 1.dp
-//                        ) {
-//                            PayCycleCard(
-////                                msg = Message(userName, body),
-////                                dateInfo = DateInfo(financialYear)
-//                            )//TODO include the variables for this card
-//                        }
-//
-//                        Spacer(modifier = Modifier.height(4.dp))
-//
-//                        //This is the conversation list!
-//                        Surface(shape = MaterialTheme.shapes.small, shadowElevation = 1.dp) {
-//                            Conversation(SampleData.conversationSample)
-//                        }
-//                    }
-//                }
+                val startDestination = startDestination ?: "Home"
+                mainDisplay(startDestination = startDestination)
             }
         }
     }
@@ -138,9 +109,9 @@ fun main() {}
 
 data class Message(val author: String, val body: String)
 
-// MAIN CardView for reusability
+// MAIN CardView for re-usability
 @Composable
-fun CardView(
+fun StandardCardView(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -148,7 +119,7 @@ fun CardView(
         shape = RoundedCornerShape(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         modifier = modifier
-            .padding(4.dp)
+            .padding(8.dp)
             .fillMaxSize()
     ) {
         Column(
@@ -158,31 +129,56 @@ fun CardView(
     }
 }
 
+//In Jetpack Compose, you can use the Divider composable to create a line across the screen. Here’s how you can do it:
+@Composable
+fun CustomDivider(
+    color: Color = Color.Gray,
+    thickness: Dp = 1.dp,
+    startIndent: Dp = 0.dp
+) {
+    Divider(color = color, thickness = thickness, modifier = Modifier.padding(start = startIndent))
+} //doesn't yet support gradients
+
+@Composable
+fun GradientDivider(
+    colors: List<Color> = listOf(Color.LightGray, Color.DarkGray, Color.LightGray),
+    thickness: Dp = 2.dp
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(thickness)
+            .background(Brush.horizontalGradient(colors))
+    )
+}
 
 
+
+// TEST to see if I can preview the navScreens
+class ComposableProvider: PreviewParameterProvider<String> {
+    override val values: Sequence<String> = sequenceOf("Home”, “Track”, “Target”, “Trim”, “Train")
+}
 
 // ~~~~~~~~~App Bar & Navigation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun mainDisplay() {
+fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
     val navController = rememberNavController()
-    //val items = listOf("Homes", "Track", "Target", "Trim", "Train")
+    //val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
     Scaffold(
         topBar = {
             TopAppBar(modifier = Modifier
                 .shadow(3.dp),
 
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO Learn navigation drawer*/ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Menu Draw"
-                        )
+                    IconButton(onClick = {  }) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menu Draw")
                     }
                 },
                 title = { Text("My Income", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 actions = {
-                    IconButton(onClick = { /* Handle settings icon click */ }) {
+                    IconButton(onClick = { navController.navigate("Settings") }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings")
                     }
                     IconButton(onClick = { /* Handle user profile icon click */ }) {
@@ -192,24 +188,35 @@ fun mainDisplay() {
             )
         },
         bottomBar = {
-            BottomNavigation(
+            BottomAppBar(
                 modifier = Modifier.shadow(3.dp),
             ) {
-                val items = listOf("Home", "Track", "Target", "Trim", "Train")
-                val icons = listOf(Icons.Filled.Home, Icons.Filled.Info, Icons.Filled.DateRange, Icons.Filled.Lock, Icons.Filled.Star)
-
-                items.forEachIndexed { index, item ->
-                    BottomNavigationItem(
-                        icon = { Icon(icons[index], contentDescription = item) },
-                        label = { Text(item) },
-                        selected = navController.currentDestination?.route == item, //Can also be false //TODO: Set this based on the current route
-                        onClick = {
-                            navController.navigate(item)
-                        }
+                NavigationBar {
+                    val items = listOf("Home", "Track", "Target", "Trim", "Train")
+                    val icons = listOf(
+                        Icons.Filled.Home,
+                        Icons.Filled.Info,
+                        Icons.Filled.DateRange,
+                        Icons.Filled.Lock,
+                        Icons.Filled.Star
                     )
+
+                    items.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            icon = { Icon(icons[index], contentDescription = item) },
+                            label = { Text(item) },
+                            selected = navController.currentDestination?.route?.startsWith(item) == true, // Adjusted selection logic
+                            onClick = {
+                                navController.navigate(item)
+                            }
+                        )
+                    }
                 }
             }
-        }
+        },
+
+        //TODO figure out the menu drawer.
+
     ) { innerPadding ->
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -221,23 +228,76 @@ fun mainDisplay() {
                 composable("Target") { TargetingScreen() }
                 composable("Trim") { TrimmingScreen() }
                 composable("Train") { TrainingScreen() }
+
+                composable("Settings") { SettingsScreen() }
             }
         }
     }
 }
+
+
+@Composable
+fun SettingsScreen() {
+
+    LazyColumn(Modifier.fillMaxSize()){
+        items(3){ index ->
+            when (index) {
+                0 -> Text(text = "This is the Settings Screen", modifier = Modifier.padding(3.dp))
+
+
+
+                //TODO implement the pay-dates
+
+
+            }
+        }
+    }
+}
+
+@Composable //Unable to work this out at this time.
+fun NavigationDrawer(){
+    Column(modifier = Modifier.fillMaxSize()) {
+    Text("Placeholder Header", modifier = Modifier.padding(16.dp))
+    Spacer(modifier = Modifier.height(8.dp))
+        Column(modifier = Modifier.clickable { /* Handle click on item 1 */ }) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Filled.Home, contentDescription = "Home")
+                Text("Placeholder Item 1")
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Column(modifier = Modifier.clickable { /* Handle click on item 2 */ }) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Filled.Info, contentDescription = "Info")
+                Text("Placeholder Item 2")
+            }
+        }
+        // Add more placeholder items...
+    }
+}
+
     @Composable
     fun HomeScreen() {
-        LazyColumn(
+        LazyColumn(//LC here to provide vertical scrolling
             Modifier
                 .fillMaxWidth(0.95f)//sets the column to 95% width
                 .fillMaxHeight()//sets the screen to fill max height for scrolling
         ){
-            items(3){ index ->
+            items(7){ index ->
                 when (index) {
                     0 -> Text(text = "This is the Home Screen", modifier = Modifier.padding(3.dp))
 
                     1 -> PayCycleCard()
 
+                    2 -> StandardCardView{ Text("Second Card - to re-use!")}
+
+                    3 -> CustomDivider()
+
+                    4 -> StandardCardView{ Text("Third Card - to re-use!")}
+
+                    5 -> GradientDivider()
+
+                    6 -> StandardCardView{ Text("Fourth Card - to re-use!")}
 
                 }
             }
@@ -247,19 +307,44 @@ fun mainDisplay() {
     @Composable
     fun TrackingScreen() {
         Column(Modifier.fillMaxSize()) {
-            Text(text = "This is the Tracking Screen", modifier = Modifier.padding(3.dp))
-            Conversation(SampleData.conversationSample) // pass the list of messages as a parameter
-        }//I needed to take out the second LazyColumn because it creates an infinite list
+            var visible by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier.padding(12.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "This is the Tracking Screen", modifier = Modifier
+                        .padding(12.dp),
+                    fontStyle = FontStyle.Normal,
+                    fontSize = 20.sp
+                )
 
-//        LazyColumn(Modifier.fillMaxSize()){
-//            items(3){ index ->
-//                when (index) {
-//                    0 -> Text(text = "This is the Tracking Screen", modifier = Modifier.padding(3.dp))
-//
-//                    1 -> Conversation(SampleData.conversationSample)
-//                }
-//            }
-//        }
+
+                IconButton(onClick = { visible = !visible }) {
+                    Icon(imageVector = Icons.Default.Info, contentDescription = "Information Icon")
+                }
+            }
+
+            AnimatedVisibility(visible = visible) {
+                Card {
+                    Text(
+                        text = "! Here I will display the dates paid within the year, grouped by month." +
+                                "\nThe user will be able to select the cards which expand. " +
+                                "\nOnce expanded they can edit (button opening bottomSheet." +
+                                "\nOr, they can open a new screen/card to edit the information for that month. Such as adding bill due dates etc...",
+                        modifier = Modifier.padding(12.dp),
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+            }
+
+
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Conversation(SampleData.conversationSample) // pass the list of messages as a parameter
+        }//I needed to take out the second LazyColumn because it creates an infinite list, Conversation() is a LazyColumn!
+
     }
 
     @Composable
@@ -270,6 +355,8 @@ fun mainDisplay() {
                     0 -> Text(text = "This is the Targeting Screen", modifier = Modifier.padding(3.dp))
 
                     1 -> PayCycleCard()
+
+                    //TODO implement the pay-dates
 
 
                 }
@@ -395,7 +482,7 @@ fun UpcomingBillCard(){
 }
 
 
-@Composable //remember that this message card is a little different to the pay-cycle one
+@Composable //TRACKING remember that this message card is a little different to the pay-cycle one
 fun MessageCard(msg: Message) {
     Row(modifier = Modifier.padding(all = 8.dp)) {
         Image(
@@ -457,7 +544,8 @@ fun Conversation(messages: List<Message>) {
     showBackground = true,
     name = "Dark Mode"
 )
-@Composable
-fun MainDisplayPreview() {
-mainDisplay()
-}
+@Composable /*for the preview navScreen*/
+fun MainDisplayPreview(@PreviewParameter(ComposableProvider::class) startDestination: String) {
+mainDisplay(startDestination)
+}//This takes in the class and enables the preview to accept the alternate screen.
+

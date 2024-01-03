@@ -1,27 +1,45 @@
 import com.example.compose.Message
+import java.text.NumberFormat
 
 /**
  * SampleData for Jetpack Compose Tutorial
  */
+
+val income = 2451.65
+val income2Monthly = income * 2
+val income3Monthly = income * 3
+
+val childSupport = 2456.58
+val citiBankDebt = 245.00
+
+val format = NumberFormat.getCurrencyInstance()
+val formatted2Income = format.format(income2Monthly)
+val formatted3Income = format.format(income3Monthly)
+val formattedBills = format.format(childSupport + citiBankDebt)
+
+/*Just using these val to organise thoughts. I will need to include the correct methods later.*/
+
+
+//TODO consider currency class
+/*Consider the card to show each of the 12 months (FY or Fiscal). You can then group the income per month
+* as bills are typically arranged by month, if not paid by the month. */
+/*
+* format.currency = Currency.getInstance("USD")*/
+
 object SampleData {
     // Sample conversation data
     val conversationSample = listOf(
         Message(
-            "Lexi",
-            "Test...Test...Test..."
+            "Jan 24 (04 - 18)",//Grouped by month, list the date
+            "$formatted2Income | Bills  -$formattedBills" +
+                    "\nB - Child Support due 07 Jan ($$childSupport)" +
+                    "\nB - Citi Bank due 08 Jan ($$citiBankDebt)"
         ),
         Message(
-            "Lexi",
-            """List of Android versions:
-            |Android KitKat (API 19)
-            |Android Lollipop (API 21)
-            |Android Marshmallow (API 23)
-            |Android Nougat (API 24)
-            |Android Oreo (API 26)
-            |Android Pie (API 28)
-            |Android 10 (API 29)
-            |Android 11 (API 30)
-            |Android 12 (API 31)""".trim()
+            "Feb 24 (1 - 15 - 29)",
+            "$formatted3Income | Bills  -$formattedBills" +
+                    "\nB - Child Support due 07 Jan ($$childSupport)" +
+                    "\nB - Citi Bank due 08 Jan ($$citiBankDebt)"
         ),
         Message(
             "Lexi",
