@@ -68,9 +68,12 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextField
 //import androidx.compose.material3.DrawerValue
 //import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.graphics.Brush
@@ -117,10 +120,11 @@ fun StandardCardView(
 ) {
     Card(
         shape = RoundedCornerShape(4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         modifier = modifier
-            .padding(8.dp)
             .fillMaxSize()
+            .padding(8.dp)
+            .shadow(2.dp),
+        //elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -129,12 +133,13 @@ fun StandardCardView(
     }
 }
 
-//In Jetpack Compose, you can use the Divider composable to create a line across the screen. Here’s how you can do it:
+//Divider composable to create a line across the screen. You can call Divider(),
+// Here’s how you can do it:
 @Composable
 fun CustomDivider(
-    color: Color = Color.Gray,
+    color: Color = Color.LightGray,
     thickness: Dp = 1.dp,
-    startIndent: Dp = 0.dp
+    startIndent: Dp = 3.dp
 ) {
     Divider(color = color, thickness = thickness, modifier = Modifier.padding(start = startIndent))
 } //doesn't yet support gradients
@@ -142,7 +147,7 @@ fun CustomDivider(
 @Composable
 fun GradientDivider(
     colors: List<Color> = listOf(Color.LightGray, Color.DarkGray, Color.LightGray),
-    thickness: Dp = 2.dp
+    thickness: Dp = 1.dp
 ) {
     Box(
         modifier = Modifier
@@ -176,7 +181,7 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
                         Icon(Icons.Filled.Menu, contentDescription = "Menu Draw")
                     }
                 },
-                title = { Text("My Income", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { Text("Money In Money Out", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 actions = {
                     IconButton(onClick = { navController.navigate("Settings") }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings")
@@ -276,6 +281,7 @@ fun NavigationDrawer(){
     }
 }
 
+// ~~~~App Bar & Navigation~~~~
     @Composable
     fun HomeScreen() {
         LazyColumn(//LC here to provide vertical scrolling
@@ -289,9 +295,9 @@ fun NavigationDrawer(){
 
                     1 -> PayCycleCard()
 
-                    2 -> StandardCardView{ Text("Second Card - to re-use!")}
+                    2 -> UpcomingBillCard()
 
-                    3 -> CustomDivider()
+                    3 -> GradientDivider()
 
                     4 -> StandardCardView{ Text("Third Card - to re-use!")}
 
@@ -303,7 +309,6 @@ fun NavigationDrawer(){
             }
         }
     }
-
     @Composable
     fun TrackingScreen() {
         Column(Modifier.fillMaxSize()) {
@@ -342,28 +347,66 @@ fun NavigationDrawer(){
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            Conversation(SampleData.conversationSample) // pass the list of messages as a parameter
+          Conversation(SampleData.conversationSample) // pass the list of messages as a parameter
         }//I needed to take out the second LazyColumn because it creates an infinite list, Conversation() is a LazyColumn!
 
     }
-
     @Composable
     fun TargetingScreen() {
-        LazyColumn(Modifier.fillMaxSize()){
-            items(3){ index ->
-                when (index) {
-                    0 -> Text(text = "This is the Targeting Screen", modifier = Modifier.padding(3.dp))
+        var name by remember {
+            mutableStateOf("")  //this is our 'State' declaration
+        }
+        var names by remember {
+            mutableStateOf(listOf<String>())
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { text ->
+                        name = text
 
-                    1 -> PayCycleCard()
+                    },
+                    modifier = Modifier
+                        .weight(1f),
 
-                    //TODO implement the pay-dates
+                )// this is a two way binding
 
+                Spacer(modifier = Modifier.width(16.dp))
 
+                Button(onClick = {
+                    if(name.isNotBlank()) {
+                        names = names + name
+                        name = ""
+                    }
+
+                }) {
+                    Text(text = "Add")
                 }
             }
+            LazyColumn {
+                items(names){ currentName ->
+                    Text(text = currentName,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    )
+                    CustomDivider()
+                }
+            }
+
         }
     }
-
     @Composable
     fun TrimmingScreen() {
         LazyColumn(Modifier.fillMaxSize()){
@@ -389,7 +432,7 @@ fun NavigationDrawer(){
             }
         }
     }
-// ~~~~~~~~~App Bar & Navigation
+// ~~~~App Bar & Navigation~~~~
 
 @Composable
 fun PayCycleCard() {
@@ -475,10 +518,8 @@ fun PayCycleCard() {
         }
     }
 }
-
 @Composable
 fun UpcomingBillCard(){
-
 }
 
 
