@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Compose</string>
+    <string name="app_name">Money In Money Out</string>
+    <string name="home_page_info">Money comes in and money goes out. It is how we manage this process that builds wealth!</string>
 </resources>

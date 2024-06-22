@@ -74,9 +74,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.mutableStateListOf
 //import androidx.compose.material3.DrawerValue
 //import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -184,7 +186,7 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
                 title = { Text("Money In Money Out", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 actions = {
                     IconButton(onClick = { navController.navigate("Settings") }) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings sceen")
                     }
                     IconButton(onClick = { /* Handle user profile icon click */ }) {
                         Icon(Icons.Filled.AccountCircle, contentDescription = "User Profile")
@@ -235,6 +237,7 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
                 composable("Train") { TrainingScreen() }
 
                 composable("Settings") { SettingsScreen() }
+                composable("Profile") { ProfileScreen() }
             }
         }
     }
@@ -244,20 +247,71 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
 @Composable
 fun SettingsScreen() {
 
-    LazyColumn(Modifier.fillMaxSize()){
-        items(3){ index ->
+    LazyColumn(
+        Modifier
+            .fillMaxSize()
+            .padding(12.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+        ){
+        items(5){ index ->
             when (index) {
                 0 -> Text(text = "This is the Settings Screen", modifier = Modifier.padding(3.dp))
-
-
-
-                //TODO implement the pay-dates
-
+                1 -> Spacer(modifier = Modifier.height(3.dp))
+                2 -> Text(text = "TODO implement some settings states", modifier = Modifier.padding(3.dp))
+                3 -> Spacer(modifier = Modifier.height(3.dp))
+                4 -> Text(text = "Insert something here!", modifier = Modifier.padding(3.dp))
 
             }
         }
     }
 }
+
+//~~~~User Profile Screen~~~~
+data class Task(
+    val id: Int, // You can use this if you switch to Room later
+    val title: String,
+    val description: String // Add more fields as needed
+)
+//TODO Add more fields
+
+
+@Composable
+fun TaskItem(task: Task) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(text = task.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = task.description, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+fun ProfileScreen() {
+    val tasks = remember {
+        mutableStateListOf(
+            Task(1, "Budget Review", "Analyze income and expenses"),
+            Task(2, "Set Financial Goals", "Define short-term and long-term goals"),
+            Task(3, "Track Spending", "Monitor daily expenses"),
+            // Add more tasks here...
+        )
+    }
+
+    LazyColumn {
+        items(tasks) { task ->
+            TaskItem(task) // Create a composable for each task
+        }
+    }
+}
+//~~~~User Profile Screen~~~~
 
 @Composable //Unable to work this out at this time.
 fun NavigationDrawer(){
@@ -291,7 +345,12 @@ fun NavigationDrawer(){
         ){
             items(7){ index ->
                 when (index) {
-                    0 -> Text(text = "This is the Home Screen", modifier = Modifier.padding(3.dp))
+                    0 -> Text(stringResource(id = R.string.home_page_info),
+                        modifier = Modifier
+                            .padding(3.dp)
+                            .shadow(1.dp)
+                            .padding(2.dp),
+                        style = MaterialTheme.typography.bodyLarge)
 
                     1 -> PayCycleCard()
 
