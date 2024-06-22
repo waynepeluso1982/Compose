@@ -188,7 +188,7 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
                     IconButton(onClick = { navController.navigate("Settings") }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings sceen")
                     }
-                    IconButton(onClick = { /* Handle user profile icon click */ }) {
+                    IconButton(onClick = { navController.navigate("Profile") }) {
                         Icon(Icons.Filled.AccountCircle, contentDescription = "User Profile")
                     }
                 }
