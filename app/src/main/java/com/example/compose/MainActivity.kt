@@ -41,9 +41,11 @@ import com.example.compose.ui.theme.ComposeTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -76,8 +78,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.mutableStateListOf
-//import androidx.compose.material3.DrawerValue
-//import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -87,6 +87,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+
 
 
 //Global Variables
@@ -124,7 +125,7 @@ fun StandardCardView(
     Card(
         shape = RoundedCornerShape(2.dp),
         modifier = modifier
-            .fillMaxSize()
+            .wrapContentHeight()
             .padding(top = 8.dp, bottom = 8.dp)
             .shadow(3.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Cyan) //TODO buld a decent colour scheme!
@@ -132,10 +133,9 @@ fun StandardCardView(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(8.dp),
             content = content
-
         )
     }
 }
@@ -237,7 +237,7 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            NavHost(navController, startDestination = "Home", Modifier.padding(innerPadding)) {
+            NavHost(navController, startDestination = "Profile", Modifier.padding(innerPadding)) { //Change back to home screen!
                 composable("Home") { HomeScreen() }
                 composable("Track") { TrackingScreen() }
                 composable("Target") { TargetingScreen() }
@@ -298,6 +298,8 @@ fun TaskItem(task: Task) {
 
             ) {
             Icon(imageVector = Icons.Filled.Check, contentDescription = "", Modifier.align(Alignment.CenterVertically))
+            Spacer(modifier = Modifier.width(8.dp))
+
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -345,21 +347,68 @@ fun ProfileScreen() {
             }
         }
 
+        //HELP and FEEDBACK
         Text(
             text = "Help and Feedback",
             modifier = Modifier
-                .padding(8.dp),
+                .padding(top = 12.dp),
             style = MaterialTheme.typography.titleSmall
         )
 
-        Text(
+        StandardCardView(modifier = Modifier.clickable { /*TODO Add click*/ }) {
+            Row(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "How to use MIMO", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Icon(imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = "Contact us")
+            }
+        }
+        StandardCardView(modifier = Modifier.clickable { /*TODO Add click*/ }) {
+            Row(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Contact Us", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Icon(imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = "Contact us")
+            }
+        }
+        StandardCardView(modifier = Modifier.clickable { /*TODO Add click*/ }) {
+            Row(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Give Feedback", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Icon(imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = "Contact us")
+            }
+        }
+
+
+        Text( //OTHER SETTINGS
             text = "Other Settings",
             modifier = Modifier
-                .padding(8.dp),
+                .padding(top = 12.dp),
             style = MaterialTheme.typography.titleSmall
         )
+        StandardCardView(modifier = Modifier.clickable { /*TODO Add click*/ }) {
+            Row(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Notifications", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Icon(imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = "Contact us")
+            }
+        }
+        StandardCardView(modifier = Modifier.clickable { /*TODO Add click*/ }) {
+            Row(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Legal Notice", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Icon(imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = "Contact us")
+            }
+        }
     }
-
 }
 //~~~~USER PROFILE~~~~
 
