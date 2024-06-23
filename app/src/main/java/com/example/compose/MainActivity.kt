@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,9 +72,9 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.mutableStateListOf
 //import androidx.compose.material3.DrawerValue
 //import androidx.compose.material3.rememberDrawerState
@@ -114,29 +115,31 @@ fun main() {}
 
 data class Message(val author: String, val body: String)
 
-// MAIN CardView for re-usability
+// Reusable componants.
 @Composable
 fun StandardCardView(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(4.dp),
+        shape = RoundedCornerShape(2.dp),
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp)
-            .shadow(2.dp),
+            .padding(top = 8.dp, bottom = 8.dp)
+            .shadow(3.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Cyan) //TODO buld a decent colour scheme!
         //elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
             content = content
+
         )
     }
 }
 
-//Divider composable to create a line across the screen. You can call Divider(),
-// Here’s how you can do it:
 @Composable
 fun CustomDivider(
     color: Color = Color.LightGray,
@@ -160,9 +163,8 @@ fun GradientDivider(
 }
 
 
-
 // TEST to see if I can preview the navScreens
-class ComposableProvider: PreviewParameterProvider<String> {
+class ComposableProvider : PreviewParameterProvider<String> {
     override val values: Sequence<String> = sequenceOf("Home”, “Track”, “Target”, “Trim”, “Train")
 }
 
@@ -179,11 +181,17 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
                 .shadow(3.dp),
 
                 navigationIcon = {
-                    IconButton(onClick = {  }) {
+                    IconButton(onClick = { }) {
                         Icon(Icons.Filled.Menu, contentDescription = "Menu Draw")
                     }
                 },
-                title = { Text("Money In Money Out", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = {
+                    Text(
+                        "Money In Money Out",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 actions = {
                     IconButton(onClick = { navController.navigate("Settings") }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings sceen")
@@ -243,7 +251,6 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
     }
 }
 
-
 @Composable
 fun SettingsScreen() {
 
@@ -253,12 +260,16 @@ fun SettingsScreen() {
             .padding(12.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-        ){
-        items(5){ index ->
+    ) {
+        items(5) { index ->
             when (index) {
                 0 -> Text(text = "This is the Settings Screen", modifier = Modifier.padding(3.dp))
                 1 -> Spacer(modifier = Modifier.height(3.dp))
-                2 -> Text(text = "TODO implement some settings states", modifier = Modifier.padding(3.dp))
+                2 -> Text(
+                    text = "TODO implement some settings states",
+                    modifier = Modifier.padding(3.dp)
+                )
+
                 3 -> Spacer(modifier = Modifier.height(3.dp))
                 4 -> Text(text = "Insert something here!", modifier = Modifier.padding(3.dp))
 
@@ -267,7 +278,7 @@ fun SettingsScreen() {
     }
 }
 
-//~~~~User Profile Screen~~~~
+//~~~~USER PROFILE~~~~
 data class Task(
     val id: Int, // You can use this if you switch to Room later
     val title: String,
@@ -275,28 +286,39 @@ data class Task(
 )
 //TODO Add more fields
 
-
 @Composable
 fun TaskItem(task: Task) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Text(text = task.title, style = MaterialTheme.typography.titleMedium)
-            Text(text = task.description, style = MaterialTheme.typography.bodyMedium)
+    var isChecked by remember { mutableStateOf(false) }
+
+    StandardCardView() {
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+
+
+            ) {
+            Icon(imageVector = Icons.Filled.Check, contentDescription = "", Modifier.align(Alignment.CenterVertically))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start
+
+            ) {
+                Text(text = task.title, style = MaterialTheme.typography.titleMedium)
+                Text(text = task.description, style = MaterialTheme.typography.bodyMedium)
+            }
+
+            Checkbox(checked = isChecked, onCheckedChange = { isChecked = it },
+                Modifier.align(Alignment.CenterVertically))
         }
+
     }
 }
 
 @Composable
 fun ProfileScreen() {
     val tasks = remember {
+        //TODO Do I add a task entry method or are we making these existing tasks?
         mutableStateListOf(
             Task(1, "Budget Review", "Analyze income and expenses"),
             Task(2, "Set Financial Goals", "Define short-term and long-term goals"),
@@ -304,20 +326,48 @@ fun ProfileScreen() {
             // Add more tasks here...
         )
     }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+    ) {
 
-    LazyColumn {
-        items(tasks) { task ->
-            TaskItem(task) // Create a composable for each task
+        Text(
+            text = "Tasks to complete",
+            modifier = Modifier
+                .padding(8.dp),
+            style = MaterialTheme.typography.titleSmall
+        )
+
+        LazyColumn {
+            items(tasks) { task ->
+                TaskItem(task) // Create a composable for each task
+            }
         }
+
+        Text(
+            text = "Help and Feedback",
+            modifier = Modifier
+                .padding(8.dp),
+            style = MaterialTheme.typography.titleSmall
+        )
+
+        Text(
+            text = "Other Settings",
+            modifier = Modifier
+                .padding(8.dp),
+            style = MaterialTheme.typography.titleSmall
+        )
     }
+
 }
-//~~~~User Profile Screen~~~~
+//~~~~USER PROFILE~~~~
 
 @Composable //Unable to work this out at this time.
-fun NavigationDrawer(){
+fun NavigationDrawer() {
     Column(modifier = Modifier.fillMaxSize()) {
-    Text("Placeholder Header", modifier = Modifier.padding(16.dp))
-    Spacer(modifier = Modifier.height(8.dp))
+        Text("Placeholder Header", modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Column(modifier = Modifier.clickable { /* Handle click on item 1 */ }) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Filled.Home, contentDescription = "Home")
@@ -335,162 +385,169 @@ fun NavigationDrawer(){
     }
 }
 
-// ~~~~App Bar & Navigation~~~~
-    @Composable
-    fun HomeScreen() {
-        LazyColumn(//LC here to provide vertical scrolling
-            Modifier
-                .fillMaxWidth(0.95f)//sets the column to 95% width
-                .fillMaxHeight()//sets the screen to fill max height for scrolling
-        ){
-            items(7){ index ->
-                when (index) {
-                    0 -> Text(stringResource(id = R.string.home_page_info),
-                        modifier = Modifier
-                            .padding(3.dp)
-                            .shadow(1.dp)
-                            .padding(2.dp),
-                        style = MaterialTheme.typography.bodyLarge)
 
-                    1 -> PayCycleCard()
-
-                    2 -> UpcomingBillCard()
-
-                    3 -> GradientDivider()
-
-                    4 -> StandardCardView{ Text("Third Card - to re-use!")}
-
-                    5 -> GradientDivider()
-
-                    6 -> StandardCardView{ Text("Fourth Card - to re-use!")}
-
-                }
-            }
-        }
-    }
-    @Composable
-    fun TrackingScreen() {
-        Column(Modifier.fillMaxSize()) {
-            var visible by remember { mutableStateOf(false) }
-            Row(
-                modifier = Modifier.padding(12.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "This is the Tracking Screen", modifier = Modifier
-                        .padding(12.dp),
-                    fontStyle = FontStyle.Normal,
-                    fontSize = 20.sp
+@Composable
+fun HomeScreen() {
+    LazyColumn(//LC here to provide vertical scrolling
+        Modifier
+            .fillMaxWidth(0.95f)//sets the column to 95% width
+            .fillMaxHeight()//sets the screen to fill max height for scrolling
+    ) {
+        items(7) { index ->
+            when (index) {
+                0 -> Text(
+                    stringResource(id = R.string.home_page_info),
+                    modifier = Modifier
+                        .padding(3.dp)
+                        .shadow(1.dp)
+                        .padding(2.dp),
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
+                1 -> PayCycleCard()
 
-                IconButton(onClick = { visible = !visible }) {
-                    Icon(imageVector = Icons.Default.Info, contentDescription = "Information Icon")
-                }
+                2 -> StandardCardView { Text("Second Card - to re-use!") }
+
+                3 -> GradientDivider()
+
+                4 -> StandardCardView { Text("Third Card - to re-use!") }
+
+                5 -> GradientDivider()
+
+                6 -> StandardCardView { Text("Fourth Card - to re-use!") }
+
             }
-
-            AnimatedVisibility(visible = visible) {
-                Card {
-                    Text(
-                        text = "! Here I will display the dates paid within the year, grouped by month." +
-                                "\nThe user will be able to select the cards which expand. " +
-                                "\nOnce expanded they can edit (button opening bottomSheet." +
-                                "\nOr, they can open a new screen/card to edit the information for that month. Such as adding bill due dates etc...",
-                        modifier = Modifier.padding(12.dp),
-                        fontStyle = FontStyle.Italic
-                    )
-                }
-            }
-
-
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-          Conversation(SampleData.conversationSample) // pass the list of messages as a parameter
-        }//I needed to take out the second LazyColumn because it creates an infinite list, Conversation() is a LazyColumn!
-
+        }
     }
-    @Composable
-    fun TargetingScreen() {
-        var name by remember {
-            mutableStateOf("")  //this is our 'State' declaration
-        }
-        var names by remember {
-            mutableStateOf(listOf<String>())
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { text ->
-                        name = text
+}
 
-                    },
-                    modifier = Modifier
-                        .weight(1f),
+@Composable
+fun TrackingScreen() {
+    Column(Modifier.fillMaxSize()) {
+        var visible by remember { mutableStateOf(false) }
+        Row(
+            modifier = Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "This is the Tracking Screen", modifier = Modifier
+                    .padding(12.dp),
+                fontStyle = FontStyle.Normal,
+                fontSize = 20.sp
+            )
+
+
+            IconButton(onClick = { visible = !visible }) {
+                Icon(imageVector = Icons.Default.Info, contentDescription = "Information Icon")
+            }
+        }
+
+        AnimatedVisibility(visible = visible) {
+            Card {
+                Text(
+                    text = "! Here I will display the dates paid within the year, grouped by month." +
+                            "\nThe user will be able to select the cards which expand. " +
+                            "\nOnce expanded they can edit (button opening bottomSheet." +
+                            "\nOr, they can open a new screen/card to edit the information for that month. Such as adding bill due dates etc...",
+                    modifier = Modifier.padding(12.dp),
+                    fontStyle = FontStyle.Italic
+                )
+            }
+        }
+
+
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Conversation(SampleData.conversationSample) // pass the list of messages as a parameter
+    }//I needed to take out the second LazyColumn because it creates an infinite list, Conversation() is a LazyColumn!
+
+}
+
+@Composable
+fun TargetingScreen() {
+    var name by remember {
+        mutableStateOf("")  //this is our 'State' declaration
+    }
+    var names by remember {
+        mutableStateOf(listOf<String>())
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { text ->
+                    name = text
+
+                },
+                modifier = Modifier
+                    .weight(1f),
 
                 )// this is a two way binding
 
-                Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
-                Button(onClick = {
-                    if(name.isNotBlank()) {
-                        names = names + name
-                        name = ""
-                    }
-
-                }) {
-                    Text(text = "Add")
+            Button(onClick = {
+                if (name.isNotBlank()) {
+                    names = names + name
+                    name = ""
                 }
-            }
-            LazyColumn {
-                items(names){ currentName ->
-                    Text(text = currentName,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                    CustomDivider()
-                }
-            }
 
-        }
-    }
-    @Composable
-    fun TrimmingScreen() {
-        LazyColumn(Modifier.fillMaxSize()){
-            items(3){ index ->
-                when (index) {
-                    0 -> Text(text = "This is the Trimming Screen", modifier = Modifier.padding(3.dp))
-
-
-                }
+            }) {
+                Text(text = "Add")
             }
         }
+        LazyColumn {
+            items(names) { currentName ->
+                Text(
+                    text = currentName,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+                CustomDivider()
+            }
+        }
+
     }
-    @Composable
-    fun TrainingScreen() {
-        LazyColumn(Modifier.fillMaxSize()){
-            items(3){ index ->
-                when (index) {
-                    0 -> Text(text = "This is the training Screen", modifier = Modifier.padding(3.dp))
+}
 
-                    1 -> PayCycleCard()
+@Composable
+fun TrimmingScreen() {
+    LazyColumn(Modifier.fillMaxSize()) {
+        items(3) { index ->
+            when (index) {
+                0 -> Text(text = "This is the Trimming Screen", modifier = Modifier.padding(3.dp))
 
-                }
+
             }
         }
     }
+}
+
+@Composable
+fun TrainingScreen() {
+    LazyColumn(Modifier.fillMaxSize()) {
+        items(3) { index ->
+            when (index) {
+                0 -> Text(text = "This is the training Screen", modifier = Modifier.padding(3.dp))
+
+                1 -> StandardCardView { Text("Third Card - to re-use!") }
+
+            }
+        }
+    }
+}
 // ~~~~App Bar & Navigation~~~~
 
 @Composable
@@ -500,21 +557,28 @@ fun PayCycleCard() {
     val isLeapYear = dateToday.year % 4 == 0 // Check if the current year is a leap year
     val fyStartDate = LocalDate.of(dateToday.year, 7, 1)
     val fyEndDate = LocalDate.of(dateToday.year + 1, 6, 30)
-    val financialYear = if (dateToday.monthValue < 7) "${dateToday.year - 1}-${dateToday.year.toString().substring(2)}" else "${dateToday.year}-${(dateToday.year + 1).toString().substring(2)}"
+    val financialYear = if (dateToday.monthValue < 7) "${dateToday.year - 1}-${
+        dateToday.year.toString().substring(2)
+    }" else "${dateToday.year}-${(dateToday.year + 1).toString().substring(2)}"
     val payCycle = "Fortnightly"
     val fortnight = "12" // TODO: Insert the pay cycle info (weekly, fortnightly, monthly)
     val dateFormatted = DateTimeFormatter.ofPattern("dd MMM yy", Locale.ENGLISH)
     val ddDateFormatted = DateTimeFormatter.ofPattern("dd")
     val mmmDateFormatted = DateTimeFormatter.ofPattern("dd MMM", Locale.ENGLISH)
 
-    Text(text = "Pay Cycle", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp))
+    Text(
+        text = "Pay Cycle",
+        style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+    )
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    Surface(shape = RoundedCornerShape(12.dp),
+    Surface(
+        shape = RoundedCornerShape(4.dp),
         color = Color.LightGray,
-        modifier = Modifier
-        .shadow(2.dp),
+        modifier = Modifier,
+        /*.shadow(2.dp)*/
 
         //.fillMaxWidth(0.95f) //this sets the card to 95% of the column width
     ) {
@@ -577,8 +641,9 @@ fun PayCycleCard() {
         }
     }
 }
+
 @Composable
-fun UpcomingBillCard(){
+fun UpcomingBillCard() {
 }
 
 
@@ -616,7 +681,8 @@ fun MessageCard(msg: Message) {
                 color = surfaceColor,
                 modifier = Modifier
                     .animateContentSize()
-                    .padding(1.dp)) {
+                    .padding(1.dp)
+            ) {
                 Text(
                     text = msg.body,
                     modifier = Modifier.padding(all = 4.dp),
@@ -646,6 +712,6 @@ fun Conversation(messages: List<Message>) {
 )
 @Composable /*for the preview navScreen*/
 fun MainDisplayPreview(@PreviewParameter(ComposableProvider::class) startDestination: String) {
-mainDisplay(startDestination)
+    mainDisplay(startDestination)
 }//This takes in the class and enables the preview to accept the alternate screen.
 
