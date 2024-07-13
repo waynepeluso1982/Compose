@@ -75,10 +75,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ChipElevation
 import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -87,7 +89,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
-
+import com.example.compose.ui.theme.British_Racing_Green
+import com.example.compose.ui.theme.Pink40
+import com.example.compose.ui.theme.PurpleGrey40
 
 
 //Global Variables
@@ -106,7 +110,7 @@ class MainActivity :
         setContent {
             ComposeTheme {
                 val startDestination = startDestination ?: "Home"
-                mainDisplay(startDestination = startDestination)
+                MainDisplay(startDestination = startDestination)
             }
         }
     }
@@ -116,7 +120,7 @@ fun main() {}
 
 data class Message(val author: String, val body: String)
 
-// Reusable componants.
+// Reusable components
 @Composable
 fun StandardCardView(
     modifier: Modifier = Modifier,
@@ -128,8 +132,8 @@ fun StandardCardView(
             .wrapContentHeight()
             .padding(top = 8.dp, bottom = 8.dp)
             .shadow(3.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Cyan) //TODO buld a decent colour scheme!
-        //elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        colors = CardDefaults.cardColors(containerColor = PurpleGrey40), //TODO build a decent colour scheme!
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
             modifier = Modifier
@@ -171,7 +175,7 @@ class ComposableProvider : PreviewParameterProvider<String> {
 // ~~~~~~~~~App Bar & Navigation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
+fun MainDisplay(startDestination: String /*for the preview navScreen*/) {
     val navController = rememberNavController()
     //val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
@@ -236,8 +240,8 @@ fun mainDisplay(startDestination: String /*for the preview navScreen*/) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
-        ) {
-            NavHost(navController, startDestination = "Profile", Modifier.padding(innerPadding)) { //Change back to home screen!
+        ) { //Change the Start Destination!
+            NavHost(navController, startDestination = "Home", Modifier.padding(innerPadding)) { //Change back to home screen!
                 composable("Home") { HomeScreen() }
                 composable("Track") { TrackingScreen() }
                 composable("Target") { TargetingScreen() }
@@ -359,7 +363,10 @@ fun ProfileScreen() {
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = "How to use MIMO", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Text(text = "How to use MIMO", modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .align(Alignment.CenterVertically))
                 Icon(imageVector = Icons.Filled.ArrowForward,
                     contentDescription = "Contact us")
             }
@@ -368,7 +375,10 @@ fun ProfileScreen() {
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = "Contact Us", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Text(text = "Contact Us", modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .align(Alignment.CenterVertically))
                 Icon(imageVector = Icons.Filled.ArrowForward,
                     contentDescription = "Contact us")
             }
@@ -377,7 +387,10 @@ fun ProfileScreen() {
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = "Give Feedback", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Text(text = "Give Feedback", modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .align(Alignment.CenterVertically))
                 Icon(imageVector = Icons.Filled.ArrowForward,
                     contentDescription = "Contact us")
             }
@@ -394,7 +407,10 @@ fun ProfileScreen() {
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = "Notifications", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Text(text = "Notifications", modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .align(Alignment.CenterVertically))
                 Icon(imageVector = Icons.Filled.ArrowForward,
                     contentDescription = "Contact us")
             }
@@ -403,7 +419,10 @@ fun ProfileScreen() {
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = "Legal Notice", modifier = Modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically))
+                Text(text = "Legal Notice", modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .align(Alignment.CenterVertically))
                 Icon(imageVector = Icons.Filled.ArrowForward,
                     contentDescription = "Contact us")
             }
@@ -600,7 +619,11 @@ fun TrainingScreen() {
 // ~~~~App Bar & Navigation~~~~
 
 @Composable
-fun PayCycleCard() {
+fun PayCycleCard(
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp)
+) {
     // Financial Year
     val dateToday = LocalDate.now()
     val isLeapYear = dateToday.year % 4 == 0 // Check if the current year is a leap year
@@ -621,75 +644,35 @@ fun PayCycleCard() {
         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
     )
 
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(6.dp))
 
     Surface(
-        shape = RoundedCornerShape(4.dp),
-        color = Color.LightGray,
-        modifier = Modifier,
-        /*.shadow(2.dp)*/
-
-        //.fillMaxWidth(0.95f) //this sets the card to 95% of the column width
+        shape = RoundedCornerShape(5.dp),
+        color = Pink40,
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier.padding(all = 11.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            //TODO replace ICON
+            Icon(painter = painterResource(id = R.drawable.ic_launcher_foreground), contentDescription = "",
+                modifier = Modifier.size(60.dp))
 
-            Column( //LEFT Column
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column( modifier = Modifier.weight(1f)
             ) {
-                Text(text = "FY: $financialYear", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Fortnight: 12", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Cycle: Fortnightly", style = MaterialTheme.typography.bodyMedium)
-            }
-
-            Column(
-//CENTER Column
-                modifier = Modifier.weight(1f),
-
-                ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = 1.dp)
-                        .shadow(2.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = dateToday.format(ddDateFormatted),
-                            style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier.padding(1.dp)
-                        )
-                        Text(
-                            text = "dd Mmm - dd Mmm",
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(1.dp)
-                        )//perhaps the width is to wide for the box?!
-                        //TODO adjust second text to correct format
-                    }
-                }
-            }
-
-            Column(//RIGHT Column
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(text = "Days to Pay: 8", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Other random info", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Deposit: $2,420.61", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Pay 01 of FY: $financialYear", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Cycle: Fortnightly", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Days to Pay: 8", style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
 }
+
+
 
 @Composable
 fun UpcomingBillCard() {
@@ -753,14 +736,14 @@ fun Conversation(messages: List<Message>) {
     }
 }
 
-@Preview(name = "Light Mode")
+//@Preview(name = "Light Mode")
 @Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
     showBackground = true,
     name = "Dark Mode"
 )
 @Composable /*for the preview navScreen*/
 fun MainDisplayPreview(@PreviewParameter(ComposableProvider::class) startDestination: String) {
-    mainDisplay(startDestination)
+    MainDisplay(startDestination)
 }//This takes in the class and enables the preview to accept the alternate screen.
 
